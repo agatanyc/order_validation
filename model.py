@@ -13,6 +13,7 @@ class Order(db.Model):
     o_state = db.Column(db.String(40))
     o_email = db.Column(db.String(40))
     o_zip_code = db.Column(db.Integer())
+    o_DOB = db.Column(db.String(40))
     valid = db.Column(db.String(40))
     errors = db.relationship('Error', back_populates='order')
 
