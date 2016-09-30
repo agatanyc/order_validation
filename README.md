@@ -8,3 +8,5 @@ python2
 flask
 
 sqlite3
+
+validate email
