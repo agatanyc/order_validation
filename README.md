@@ -5,4 +5,6 @@ set of orders are considered valid.
 ## dependencies
 python2
 
-validate_email
+flask
+
+sqlite3
