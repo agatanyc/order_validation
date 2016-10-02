@@ -1,7 +1,8 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 
 from app import app
 from model import Order, Error, init_db, db
+from serializer import get_order_serialized
 import sqlite3
 from datetime import datetime
 from validate_email import validate_email
@@ -10,7 +11,7 @@ from validate_email import validate_email
 def index():
     return 'An awesome app to validate orders.'
 
-@app.route('/orders/import', methods=['POST'])
+@app.route('/orders/import', methods=['POST', 'PUT'])
 def load_orders():
     data = request.data.strip().split('\n')
     if len(data) > 1:
@@ -50,9 +51,37 @@ def load_orders():
         set_valid(current_line, None)
         db.session.add(current_line)
         db.session.commit()
-# TODO return JSON
-    return 'Data loaded. To check for errors query orders.db errors table.' 
+    # return JSON
+    orders = db.session.query(Order).all()
+    print 'ORDERS: ', orders
 
+    result = []
+    for order in orders:
+        print order.errors
+        errors = []
+        for error in order.errors:
+            errors.append({'primary_key':error.primary_key,
+                            'e_name':error.e_name,
+                            'order_key':error.order_key})
+
+        result.append({'primary_key':order.primary_key,
+                    'order_id':order.order_id,
+                    'o_name':order.o_name,
+                    'o_email':order.o_email,
+                    'o_state':order.o_state,
+                    'o_zip_code':order.o_zip_code,
+                    'o_DOB':order.o_DOB,
+                    'valid':order.valid,
+                    'errors':errors})
+
+    return jsonify(result)
+
+    #return 'Data loaded. To check for errors query orders.db errors table.' 
+
+@app.route('/orders', methods=['GET'])
+def orders():
+    pass
+ 
 
 # Validation functions
 
