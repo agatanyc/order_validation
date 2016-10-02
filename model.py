@@ -17,11 +17,6 @@ class Order(db.Model):
     valid = db.Column(db.String(40))
     errors = db.relationship('Error', back_populates='order')
 
-
-    # errors are in seperate table, create a relationship beteen orders
-    # and errors table
-
-
 class Error(db.Model):
 
     __tablename__ = 'errors'
