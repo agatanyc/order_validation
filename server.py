@@ -79,20 +79,44 @@ def load_orders():
     #return 'Data loaded. To check for errors query orders.db errors table.' 
 
 @app.route('/orders/', methods=['GET'])
-def orders():
-    """Return all imported orders providing `order id`, `order name` and 
-    validation flag."""
+@app.route('/orders/<order_id>', methods=['GET'])
+def orders(order_id=None):
+    """Return imported orders info depending on the request."""
 
-    # filter order by validity (e.g. /orders?valid=1)
+    # give detailed information about a given order
+    detailed_orders = db.session.query(Order).filter(
+                                              Order.order_id == order_id)
     flag = request.args.get('valid')
     print 'FLAG', flag
-    if flag == '1':
+    if detailed_orders:
+        result = []
+        for order in detailed_orders:
+            errors = []
+            for error in order.errors:
+                errors.append({'primary_key':error.primary_key,
+                            'e_name':error.e_name,
+                            'order_key':error.order_key})
+
+            result.append({'primary_key':order.primary_key,
+                        'order_id':order.order_id,
+                        'o_name':order.o_name,
+                        'o_email':order.o_email,
+                        'o_state':order.o_state,
+                        'o_zip_code':order.o_zip_code,
+                        'o_DOB':order.o_DOB,
+                        'valid':order.valid,
+                        'errors':errors})
+            print 'RESULT_all', result
+            return jsonify(result)
+    # filter order by validity (e.g. /orders?valid=1)
+    elif flag == '1':
         print 'THERE IS A FLAG'
         orders = db.session.query(Order).filter(Order.valid == 1).all()
         print 'VALID=1', orders
     elif flag == '0':
         orders = db.session.query(Order).filter(Order.valid == 0).all()
         print 'VALID=0', orders
+    # provide selected info about order
     else:
         orders = db.session.query(Order).all()
         print "RESULT_3_fieds", orders
@@ -102,6 +126,11 @@ def orders():
                   'name':order.o_name,
                   'valid':order.valid})
     return jsonify(result)
+
+#@app.route('/orders/<order_id>', methods=['GET'])
+#def orders(order_id):
+#    pass
+    
     
 # Validation functions
 
