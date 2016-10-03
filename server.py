@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, json
 
 from app import app
 from model import Order, Error, init_db, db
@@ -11,7 +11,7 @@ from validate_email import validate_email
 def index():
     return 'An awesome app to validate orders.'
 
-@app.route('/orders/import', methods=['POST', 'PUT'])
+@app.route('/orders/import', methods=['POST'])
 def load_orders():
     data = request.data.strip().split('\n')
     if len(data) > 1:
@@ -51,13 +51,11 @@ def load_orders():
         set_valid(current_line, None)
         db.session.add(current_line)
         db.session.commit()
-    # return JSON
     orders = db.session.query(Order).all()
-    print 'ORDERS: ', orders
 
     result = []
     for order in orders:
-        print order.errors
+        #print 'ORDER.ERRORS', order.errors
         errors = []
         for error in order.errors:
             errors.append({'primary_key':error.primary_key,
@@ -73,16 +71,38 @@ def load_orders():
                     'o_DOB':order.o_DOB,
                     'valid':order.valid,
                     'errors':errors})
+        print 'RESULT', result
+        #print ''
 
     return jsonify(result)
 
     #return 'Data loaded. To check for errors query orders.db errors table.' 
 
-@app.route('/orders', methods=['GET'])
+@app.route('/orders/', methods=['GET'])
 def orders():
-    pass
- 
+    """Return all imported orders providing `order id`, `order name` and 
+    validation flag."""
 
+    # filter order by validity (e.g. /orders?valid=1)
+    flag = request.args.get('valid')
+    print 'FLAG', flag
+    if flag == '1':
+        print 'THERE IS A FLAG'
+        orders = db.session.query(Order).filter(Order.valid == 1).all()
+        print 'VALID=1', orders
+    elif flag == '0':
+        orders = db.session.query(Order).filter(Order.valid == 0).all()
+        print 'VALID=0', orders
+    else:
+        orders = db.session.query(Order).all()
+        print "RESULT_3_fieds", orders
+    result = []
+    for order in orders:
+        result.append({'order_id': order.order_id,
+                  'name':order.o_name,
+                  'valid':order.valid})
+    return jsonify(result)
+    
 # Validation functions
 
 def set_valid(line, next_line):
