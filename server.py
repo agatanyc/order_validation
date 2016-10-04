@@ -92,9 +92,25 @@ def orders(order_id=None):
         for order in detailed_orders:
             errors = []
             for error in order.errors:
-                errors.append({'primary_key':error.primary_key,
+                if error.e_name == 'Allowed states':
+                    message = 'We dont ship to ' + order.o_state
+                elif error.e_name == 'Zipcode sum':
+                    message = 'The sum of digits in a zip code may not exceed 20'
+                elif error.e_name == 'Zipcode length':
+                    message = 'Valid zip codes must be 5 or 9 digits'
+                elif error.e_name == 'Allowed age':
+                    message = 'Everyone ordering must be 21 or older'
+                elif error.e_name == 'Email validation':
+                    message =  'Email address must be valid'
+                elif error.e_name == '.net domain':
+                    message = 'Customers from NY may not have .net email addresses.'
+                else:
+                    message = 'Unknown error'
+
+                errors.append({
                             'e_name':error.e_name,
-                            'order_key':error.order_key})
+                            'message': message
+                            })
 
             result.append({'primary_key':order.primary_key,
                         'order_id':order.order_id,
@@ -146,7 +162,7 @@ def set_valid(line, next_line):
             line.valid = 0
     return line.valid
 
-def valid_state(line): # instatce of Order class
+def valid_state(line): # line is an instance of Order class
     """No wine can ship to New Jersey, Connecticut, Pennsylvania, Massachusetts,
     Illinois, Idaho or Oregon."""
     state = line.o_state 
