@@ -27,3 +27,6 @@ To query the db from command line run:
 `python model.py`
 
 sqlite3 orders.db
+
+
+Tests - WORK IN PROGRESS
