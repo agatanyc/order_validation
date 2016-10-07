@@ -41,6 +41,17 @@ class FlaskTestCase(unittest.TestCase):
         order_data = data[0]
         self.assertEqual(order_data['order_id'], 4877)
 
+    def test_allowed_states_error(self):
+        tester = app.test_client(self)
+        response = tester.get('/orders/4877')
+        data = json.loads(response.data)
+        order_data = data[0]
+        error_data = order_data['errors']
+        error_name = error_data[0]['e_name']
+        self.assertEqual(error_name, 'Allowed states')
+        print error_data
+
+
     def tearDown(self):
         db.session.remove()
         db.drop_all()
