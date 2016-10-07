@@ -1,4 +1,4 @@
-# order_validation
+:# order_validation
 Order validation and management service  that is used to determine if a data 
 set of orders are considered valid.
 
@@ -18,15 +18,19 @@ validate email
 `python server.py`  ( to start the server)
 
 
-You can use Advanced REST client to send requests.
+### you can use Advanced REST client (chrome extension) to send requests.
 
-Example of the order data can be found in data.txt
+## example of the order data can be found in `data.txt`
 
-To query the db from command line run:
+## to query the db from command line run:
 
 `python model.py`
 
 sqlite3 orders.db
 
+## Deployment
 
-Tests - WORK IN PROGRESS
+TBD
+
+
+## Tests - WORK IN PROGRESS
