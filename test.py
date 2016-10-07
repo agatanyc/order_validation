@@ -25,14 +25,12 @@ class FlaskTestCase(unittest.TestCase):
         tester = app.test_client(self)
         # check response from the app
         response = tester.get('/', content_type='text/plain')
-        #print 'IIIIIIII INDEX', response.data
         self.assertEqual(response.status_code, 200)
 
     def test_load_orders(self):
         # mock fucionality of the app
         tester = app.test_client(self)
         response = tester.post('/orders/import')
-        #print 'XxxxxxxxxxxxXXXXXXXXX LOAD ORDERS ALL', response.data
         self.assertEqual(response.status_code, 200)
 
     def test_orders(self):
@@ -42,21 +40,7 @@ class FlaskTestCase(unittest.TestCase):
         data = json.loads(response.data)
         order_data = data[0]
         self.assertEqual(order_data['order_id'], 4877)
-        #print  'RRRRRRRRRRRRR ORDRS 3', dict(data)
-        """
-        new_line = Order(order_id=1,
-                                    o_name='agata',
-                                    o_email='agata@gmail.com',
-                                    o_state='NY',
-                                    o_zip_code='11217',
-                                    o_DOB = 11.09.84,
-                                    valid=0,
-                                    errors=[])
-        
 
-        db.session.add(new_line)
-        db.session.commit()
-        """
     def tearDown(self):
         db.session.remove()
         db.drop_all()
