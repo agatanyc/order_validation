@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify, json
 
 from app import app
 from model import Order, Error, init_db, db
-from serializer import get_order_serialized
 import sqlite3
 from datetime import datetime
 from validate_email import validate_email
@@ -83,9 +82,6 @@ def orders(order_id=None):
     # give detailed information about a given order
     flag = request.args.get('valid')
     if order_id:
-        print 'ENTERED ORDER ID '
-        print len(order_id)
-        print order_id
         detailed_orders = db.session.query(Order).filter(
                                               Order.order_id == order_id)
         result = []
@@ -149,12 +145,30 @@ def set_valid(line, next_line):
          line.o_state == next_line.o_state:
          line.valid = 1
     else:
-        state_valid = valid_state(line)
-        zipcode_valid = valid_zipcode(line)
-        age_valid = valid_age(line)
-        email_valid = valid_email(line)
-        zip_sum_valid = valid_zip_sum(line)
-        domain_valid = valid_domain(line)
+        if app.config.get('ALLOWED_STATES'):
+            state_valid = valid_state(line)
+        else:
+            state_valid = True
+        if app.config.get('ZIPCODE_LENGTH'):
+            zipcode_valid = valid_zipcode(line)
+        else:
+            zipcode_valid = True
+        if app.config.get('ALOWED_AGE'):
+            age_valid = valid_age(line)
+        else:
+            age_valid = True
+        if app.config.get('EMAIL_VALIDATION'):
+            email_valid = valid_email(line)
+        else:
+            email_valid = True
+        if app.config.get('ZIPCODE_SUM'):
+            zip_sum_valid = valid_zip_sum(line)
+        else:
+            zip_sum_valid = True
+        if app.config.get('ZIPCODE_SUM'):
+            domain_valid = valid_domain(line)
+        else:
+            domain_valid = True
         if state_valid and zipcode_valid and age_valid and email_valid and \
            zip_sum_valid and domain_valid:
             line.valid = 1
@@ -166,7 +180,7 @@ def valid_state(line): # line is an instance of Order class
     """No wine can ship to New Jersey, Connecticut, Pennsylvania, Massachusetts,
     Illinois, Idaho or Oregon."""
     state = line.o_state 
-    invalid_state = state in ('NJ', 'PA', 'MA', 'IL', 'CT', 'ID', 'OR',)
+    invalid_state = state in app.config.get('ALLOWED_STATES')
     if invalid_state:
         rule = 'Allowed states'
         new_row = Error(e_name=rule, order_key=line.primary_key)
@@ -240,6 +254,9 @@ def valid_domain(line):
         line.errors.append(new_row)
         return False
     return True
+
+
+
 
 if __name__ == "__main__":
     app.debug = True
