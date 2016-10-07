@@ -1,0 +1,4 @@
+id|name|email|state|zipcode|birthday
+4877|Stone Dominguez|ligula.Aliquam.erat@semperegestasurna.com|OR|05938|Feb 27, 1963
+3278|Kenyon Fulton|aliquam.eros@velmaurisInteger@org|VT|56093|Sep 10, 1935
+5021|Eagan Weaver|interdum.Sed@apurusDuis.net|NY|21994|Nov 21, 2000
